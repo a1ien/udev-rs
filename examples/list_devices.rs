@@ -8,9 +8,9 @@ fn main() {
 }
 
 fn list_devices(context: &udev::Context) -> io::Result<()> {
-    let mut enumerator = try!(udev::Enumerator::new(&context));
+    let mut enumerator = udev::Enumerator::new(&context)?;
 
-    for device in try!(enumerator.scan_devices()) {
+    for device in enumerator.scan_devices()? {
         println!("");
         println!("initialized: {:?}", device.is_initialized());
         println!("     devnum: {:?}", device.devnum());

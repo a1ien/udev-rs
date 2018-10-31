@@ -37,10 +37,10 @@ fn main() {
 }
 
 fn monitor(context: &udev::Context) -> io::Result<()> {
-    let mut monitor = try!(udev::MonitorBuilder::new(&context));
+    let mut monitor = udev::MonitorBuilder::new(&context)?;
 
-    try!(monitor.match_subsystem_devtype("usb", "usb_device"));
-    let mut socket = try!(monitor.listen());
+    monitor.match_subsystem_devtype("usb", "usb_device")?;
+    let mut socket = monitor.listen()?;
 
     let mut fds = vec!(pollfd { fd: socket.as_raw_fd(), events: POLLIN, revents: 0 });
 

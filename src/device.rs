@@ -116,7 +116,7 @@ impl Device {
 
     /// Returns the parent of the device with the matching subsystem and devtype if any.
     pub fn parent_with_subsystem(&self, subsystem: &Path) -> ::Result<Option<Device>> {
-        let subsystem = try!(::util::os_str_to_cstring(subsystem));
+        let subsystem = ::util::os_str_to_cstring(subsystem)?;
         let ptr = unsafe { ::ffi::udev_device_get_parent_with_subsystem_devtype(self.device, subsystem.as_ptr(), ptr::null()) };
 
         if !ptr.is_null() {
@@ -128,8 +128,8 @@ impl Device {
 
     /// Returns the parent of the device with the matching subsystem and devtype if any.
     pub fn parent_with_subsystem_devtype(&self, subsystem: &Path, devtype: &Path) -> ::Result<Option<Device>> {
-        let subsystem = try!(::util::os_str_to_cstring(subsystem));
-        let devtype = try!(::util::os_str_to_cstring(devtype));
+        let subsystem = ::util::os_str_to_cstring(subsystem)?;
+        let devtype = ::util::os_str_to_cstring(devtype)?;
         let ptr = unsafe { ::ffi::udev_device_get_parent_with_subsystem_devtype(self.device, subsystem.as_ptr(), devtype.as_ptr()) };
 
         if !ptr.is_null() {
@@ -216,8 +216,8 @@ impl Device {
 
     /// Sets the value of a device attribute.
     pub fn set_attribute_value<T: AsRef<OsStr>, U: AsRef<OsStr>>(&mut self, attribute: T, value: U) -> ::Result<()> {
-        let attribute = try!(::util::os_str_to_cstring(attribute));
-        let value = try!(::util::os_str_to_cstring(value));
+        let attribute = ::util::os_str_to_cstring(attribute)?;
+        let value = ::util::os_str_to_cstring(value)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_device_set_sysattr_value(self.device, attribute.as_ptr(), value.as_ptr() as *mut c_char)
@@ -238,7 +238,7 @@ impl Device {
     ///     println!("{:?} = {:?}", property.name(), property.value());
     /// }
     /// ```
-    pub fn properties<'a>(&'a self) -> Properties<'a> {
+    pub fn properties(&self) -> Properties {
         Properties {
             entry: unsafe { ::ffi::udev_device_get_properties_list_entry(self.device) },
             _device: self,
@@ -259,7 +259,7 @@ impl Device {
     ///     println!("{:?} = {:?}", attribute.name(), attribute.value());
     /// }
     /// ```
-    pub fn attributes<'a>(&'a self) -> Attributes<'a> {
+    pub fn attributes(&self) -> Attributes {
         Attributes {
             entry: unsafe { ::ffi::udev_device_get_sysattr_list_entry(self.device) },
             device: self,
@@ -288,8 +288,8 @@ impl<'a> Iterator for Properties<'a> {
             self.entry = unsafe { ::ffi::udev_list_entry_get_next(self.entry) };
 
             Some(Property {
-                name: name,
-                value: value
+                name,
+                value
             })
         }
     }
@@ -335,7 +335,7 @@ impl<'a> Iterator for Attributes<'a> {
 
             Some(Attribute {
                 device: self.device,
-                name: name
+                name
             })
         }
         else {

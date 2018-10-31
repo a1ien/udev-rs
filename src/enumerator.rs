@@ -53,7 +53,7 @@ impl Enumerator {
 
     /// Adds a filter that matches only devices that belong to the given kernel subsystem.
     pub fn match_subsystem<T: AsRef<OsStr>>(&mut self, subsystem: T) -> ::Result<()> {
-        let subsystem = try!(::util::os_str_to_cstring(subsystem));
+        let subsystem = ::util::os_str_to_cstring(subsystem)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_enumerate_add_match_subsystem(self.enumerator, subsystem.as_ptr())
@@ -62,8 +62,8 @@ impl Enumerator {
 
     /// Adds a filter that matches only devices with the given attribute value.
     pub fn match_attribute<T: AsRef<OsStr>, U: AsRef<OsStr>>(&mut self, attribute: T, value: U) -> ::Result<()> {
-        let attribute = try!(::util::os_str_to_cstring(attribute));
-        let value = try!(::util::os_str_to_cstring(value));
+        let attribute = ::util::os_str_to_cstring(attribute)?;
+        let value = ::util::os_str_to_cstring(value)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_enumerate_add_match_sysattr(self.enumerator, attribute.as_ptr(), value.as_ptr())
@@ -81,8 +81,8 @@ impl Enumerator {
 
     /// Adds a filter that matches only devices with the given property value.
     pub fn match_property<T: AsRef<OsStr>, U: AsRef<OsStr>>(&mut self, property: T, value: U) -> ::Result<()> {
-        let property = try!(::util::os_str_to_cstring(property));
-        let value = try!(::util::os_str_to_cstring(value));
+        let property = ::util::os_str_to_cstring(property)?;
+        let value = ::util::os_str_to_cstring(value)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_enumerate_add_match_property(self.enumerator, property.as_ptr(), value.as_ptr())
@@ -91,7 +91,7 @@ impl Enumerator {
 
     /// Adds a filter that matches only devices with the given tag.
     pub fn match_tag<T: AsRef<OsStr>>(&mut self, tag: T) -> ::Result<()> {
-        let tag = try!(::util::os_str_to_cstring(tag));
+        let tag = ::util::os_str_to_cstring(tag)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_enumerate_add_match_tag(self.enumerator, tag.as_ptr())
@@ -107,7 +107,7 @@ impl Enumerator {
 
     /// Adds a filter that matches only devices that don't belong to the given kernel subsystem.
     pub fn nomatch_subsystem<T: AsRef<OsStr>>(&mut self, subsystem: T) -> ::Result<()> {
-        let subsystem = try!(::util::os_str_to_cstring(subsystem));
+        let subsystem = ::util::os_str_to_cstring(subsystem)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_enumerate_add_nomatch_subsystem(self.enumerator, subsystem.as_ptr())
@@ -116,8 +116,8 @@ impl Enumerator {
 
     /// Adds a filter that matches only devices that don't have the the given attribute value.
     pub fn nomatch_attribute<T: AsRef<OsStr>, U: AsRef<OsStr>>(&mut self, attribute: T, value: U) -> ::Result<()> {
-        let attribute = try!(::util::os_str_to_cstring(attribute));
-        let value = try!(::util::os_str_to_cstring(value));
+        let attribute = ::util::os_str_to_cstring(attribute)?;
+        let value = ::util::os_str_to_cstring(value)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_enumerate_add_nomatch_sysattr(self.enumerator, attribute.as_ptr(), value.as_ptr())
@@ -126,7 +126,7 @@ impl Enumerator {
 
     /// Includes the device with the given syspath.
     pub fn add_syspath(&mut self, syspath: &Path) -> ::Result<()> {
-        let syspath = try!(::util::os_str_to_cstring(syspath));
+        let syspath = ::util::os_str_to_cstring(syspath)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_enumerate_add_syspath(self.enumerator, syspath.as_ptr())
@@ -137,9 +137,9 @@ impl Enumerator {
     ///
     /// The devices will be sorted in dependency order.
     pub fn scan_devices(&mut self) -> ::Result<Devices> {
-        try!(::util::errno_to_result(unsafe {
+        ::util::errno_to_result(unsafe {
             ::ffi::udev_enumerate_scan_devices(self.enumerator)
-        }));
+        })?;
 
         Ok(Devices {
             enumerator: self.clone(),

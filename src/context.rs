@@ -47,7 +47,7 @@ impl Context {
     /// The `syspath` parameter should be a path to the device file within the `sysfs` file system,
     /// e.g., `/sys/devices/virtual/tty/tty0`.
     pub fn device_from_syspath(&self, syspath: &Path) -> ::Result<Device> {
-        let syspath = try!(::util::os_str_to_cstring(syspath));
+        let syspath = ::util::os_str_to_cstring(syspath)?;
 
         let ptr = try_alloc!(unsafe {
             ::ffi::udev_device_new_from_syspath(self.udev, syspath.as_ptr())
@@ -67,8 +67,8 @@ impl Context {
 
     /// Creates a device from a given subsystem and sysname.
     pub fn device_from_subsystem_sysname(&self, subsystem: &Path, syspath: &Path) -> ::Result<Device> {
-        let subsystem = try!(::util::os_str_to_cstring(subsystem));
-        let syspath = try!(::util::os_str_to_cstring(syspath));
+        let subsystem = ::util::os_str_to_cstring(subsystem)?;
+        let syspath = ::util::os_str_to_cstring(syspath)?;
 
         let ptr = try_alloc!(unsafe {
             ::ffi::udev_device_new_from_subsystem_sysname(self.udev, subsystem.as_ptr(), syspath.as_ptr())
@@ -86,7 +86,7 @@ impl Context {
     /// - `n3` - network device ifindex
     /// - `+sound:card29` - kernel driver core subsystem:device name
     pub fn device_from_device_id(&self, device_id: &Path) -> ::Result<Device> {
-        let device_id = try!(::util::os_str_to_cstring(device_id));
+        let device_id = ::util::os_str_to_cstring(device_id)?;
 
         let ptr = try_alloc!(unsafe {
             ::ffi::udev_device_new_from_device_id(self.udev, device_id.as_ptr())

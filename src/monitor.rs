@@ -51,7 +51,7 @@ impl MonitorBuilder {
 
     /// Adds a filter that matches events for devices with the given subsystem.
     pub fn match_subsystem<T: AsRef<OsStr>>(&mut self, subsystem: T) -> ::Result<()> {
-        let subsystem = try!(::util::os_str_to_cstring(subsystem));
+        let subsystem = ::util::os_str_to_cstring(subsystem)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_monitor_filter_add_match_subsystem_devtype(self.monitor, subsystem.as_ptr(), ptr::null())
@@ -60,8 +60,8 @@ impl MonitorBuilder {
 
     /// Adds a filter that matches events for devices with the given subsystem and device type.
     pub fn match_subsystem_devtype<T: AsRef<OsStr>, U: AsRef<OsStr>>(&mut self, subsystem: T, devtype: U) -> ::Result<()> {
-        let subsystem = try!(::util::os_str_to_cstring(subsystem));
-        let devtype = try!(::util::os_str_to_cstring(devtype));
+        let subsystem = ::util::os_str_to_cstring(subsystem)?;
+        let devtype = ::util::os_str_to_cstring(devtype)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_monitor_filter_add_match_subsystem_devtype(self.monitor, subsystem.as_ptr(), devtype.as_ptr())
@@ -70,7 +70,7 @@ impl MonitorBuilder {
 
     /// Adds a filter that matches events for devices with the given tag.
     pub fn match_tag<T: AsRef<OsStr>>(&mut self, tag: T) -> ::Result<()> {
-        let tag = try!(::util::os_str_to_cstring(tag));
+        let tag = ::util::os_str_to_cstring(tag)?;
 
         ::util::errno_to_result(unsafe {
             ::ffi::udev_monitor_filter_add_match_tag(self.monitor, tag.as_ptr())
@@ -88,9 +88,9 @@ impl MonitorBuilder {
     ///
     /// This method consumes the `Monitor`.
     pub fn listen(self) -> ::Result<MonitorSocket> {
-        try!(::util::errno_to_result(unsafe {
+        ::util::errno_to_result(unsafe {
             ::ffi::udev_monitor_enable_receiving(self.monitor)
-        }));
+        })?;
 
         Ok(MonitorSocket { inner: self })
     }
@@ -156,7 +156,7 @@ impl Iterator for MonitorSocket {
             None
         } else {
             let device = unsafe { ::Device::from_raw(&self.inner.context, ptr) };
-            Some(Event { device: device })
+            Some(Event { device })
         }
     }
 }
