@@ -9,6 +9,7 @@ repository = "https://github.com/Smithay/udev-rs"
 documentation = "http://docs.rs/udev/"
 keywords = ["udev", "hardware", "bindings", "sysfs"]
 readme = "README.md"
+edition = "2018"
 
 [dependencies]
 libudev-sys = "0.1.3"

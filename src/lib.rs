@@ -4,21 +4,21 @@
 
 #![warn(missing_docs)]
 
-extern crate libudev_sys as ffi;
-extern crate libc;
+use libudev_sys as ffi;
 
-pub use context::Context;
-pub use device::{Device, DeviceType, Properties, Property, Attributes, Attribute};
-pub use enumerator::{Enumerator, Devices};
-pub use error::{Result, Error, ErrorKind};
-pub use monitor::{MonitorBuilder, MonitorSocket, EventType, Event};
+
+pub use crate::context::Context;
+pub use crate::device::{Device, DeviceType, Properties, Property, Attributes, Attribute};
+pub use crate::enumerator::{Enumerator, Devices};
+pub use crate::error::{Result, Error, ErrorKind};
+pub use crate::monitor::{MonitorBuilder, MonitorSocket, EventType, Event};
 
 macro_rules! try_alloc {
     ($exp:expr) => {{
         let ptr = $exp;
 
         if ptr.is_null() {
-            return Err(::error::from_errno(::libc::ENOMEM));
+            return Err(crate::error::from_errno(libc::ENOMEM));
         }
 
         ptr

@@ -5,7 +5,7 @@ use std::ffi::{CString, OsStr};
 use std::ops::Deref;
 use std::os::unix::io::{RawFd, AsRawFd};
 
-use ::{AsRaw, Context, Device, FromRawWithContext};
+use crate::{AsRaw, Context, Device, FromRawWithContext};
 
 
 /// Monitors for device events.
@@ -14,22 +14,22 @@ use ::{AsRaw, Context, Device, FromRawWithContext};
 /// in the kernel, and only events that match the filters are received by the socket. Filters must
 /// be setup before listening for events.
 pub struct MonitorBuilder {
-    monitor: *mut ::ffi::udev_monitor,
+    monitor: *mut crate::ffi::udev_monitor,
     context: Context,
 }
 
 impl Drop for MonitorBuilder {
     fn drop(&mut self) {
         unsafe {
-            ::ffi::udev_monitor_unref(self.monitor);
+            crate::ffi::udev_monitor_unref(self.monitor);
         }
     }
 }
 
-as_ffi!(MonitorBuilder, monitor, ::ffi::udev_monitor);
+as_ffi!(MonitorBuilder, monitor, crate::ffi::udev_monitor);
 
-impl FromRawWithContext<::ffi::udev_monitor> for MonitorBuilder {
-    unsafe fn from_raw(context: &Context, ptr: *mut ::ffi::udev_monitor) -> MonitorBuilder {
+impl FromRawWithContext<crate::ffi::udev_monitor> for MonitorBuilder {
+    unsafe fn from_raw(context: &Context, ptr: *mut crate::ffi::udev_monitor) -> MonitorBuilder {
         MonitorBuilder {
             monitor: ptr,
             context: context.clone(),
@@ -39,57 +39,57 @@ impl FromRawWithContext<::ffi::udev_monitor> for MonitorBuilder {
 
 impl MonitorBuilder {
     /// Creates a new `Monitor`.
-    pub fn new(context: &Context) -> ::Result<Self> {
+    pub fn new(context: &Context) -> crate::Result<Self> {
         let name = CString::new("udev").unwrap();
 
         let ptr = try_alloc!(unsafe {
-            ::ffi::udev_monitor_new_from_netlink(context.as_raw(), name.as_ptr())
+            crate::ffi::udev_monitor_new_from_netlink(context.as_raw(), name.as_ptr())
         });
 
         Ok(unsafe { MonitorBuilder::from_raw(context, ptr) })
     }
 
     /// Adds a filter that matches events for devices with the given subsystem.
-    pub fn match_subsystem<T: AsRef<OsStr>>(&mut self, subsystem: T) -> ::Result<()> {
-        let subsystem = ::util::os_str_to_cstring(subsystem)?;
+    pub fn match_subsystem<T: AsRef<OsStr>>(&mut self, subsystem: T) -> crate::Result<()> {
+        let subsystem = crate::util::os_str_to_cstring(subsystem)?;
 
-        ::util::errno_to_result(unsafe {
-            ::ffi::udev_monitor_filter_add_match_subsystem_devtype(self.monitor, subsystem.as_ptr(), ptr::null())
+        crate::util::errno_to_result(unsafe {
+            crate::ffi::udev_monitor_filter_add_match_subsystem_devtype(self.monitor, subsystem.as_ptr(), ptr::null())
         })
     }
 
     /// Adds a filter that matches events for devices with the given subsystem and device type.
-    pub fn match_subsystem_devtype<T: AsRef<OsStr>, U: AsRef<OsStr>>(&mut self, subsystem: T, devtype: U) -> ::Result<()> {
-        let subsystem = ::util::os_str_to_cstring(subsystem)?;
-        let devtype = ::util::os_str_to_cstring(devtype)?;
+    pub fn match_subsystem_devtype<T: AsRef<OsStr>, U: AsRef<OsStr>>(&mut self, subsystem: T, devtype: U) -> crate::Result<()> {
+        let subsystem = crate::util::os_str_to_cstring(subsystem)?;
+        let devtype = crate::util::os_str_to_cstring(devtype)?;
 
-        ::util::errno_to_result(unsafe {
-            ::ffi::udev_monitor_filter_add_match_subsystem_devtype(self.monitor, subsystem.as_ptr(), devtype.as_ptr())
+        crate::util::errno_to_result(unsafe {
+            crate::ffi::udev_monitor_filter_add_match_subsystem_devtype(self.monitor, subsystem.as_ptr(), devtype.as_ptr())
         })
     }
 
     /// Adds a filter that matches events for devices with the given tag.
-    pub fn match_tag<T: AsRef<OsStr>>(&mut self, tag: T) -> ::Result<()> {
-        let tag = ::util::os_str_to_cstring(tag)?;
+    pub fn match_tag<T: AsRef<OsStr>>(&mut self, tag: T) -> crate::Result<()> {
+        let tag = crate::util::os_str_to_cstring(tag)?;
 
-        ::util::errno_to_result(unsafe {
-            ::ffi::udev_monitor_filter_add_match_tag(self.monitor, tag.as_ptr())
+        crate::util::errno_to_result(unsafe {
+            crate::ffi::udev_monitor_filter_add_match_tag(self.monitor, tag.as_ptr())
         })
     }
 
     /// Removes all filters currently set on the monitor.
-    pub fn clear_filters(&mut self) -> ::Result<()> {
-        ::util::errno_to_result(unsafe {
-            ::ffi::udev_monitor_filter_remove(self.monitor)
+    pub fn clear_filters(&mut self) -> crate::Result<()> {
+        crate::util::errno_to_result(unsafe {
+            crate::ffi::udev_monitor_filter_remove(self.monitor)
         })
     }
 
     /// Listens for events matching the current filters.
     ///
     /// This method consumes the `Monitor`.
-    pub fn listen(self) -> ::Result<MonitorSocket> {
-        ::util::errno_to_result(unsafe {
-            ::ffi::udev_monitor_enable_receiving(self.monitor)
+    pub fn listen(self) -> crate::Result<MonitorSocket> {
+        crate::util::errno_to_result(unsafe {
+            crate::ffi::udev_monitor_enable_receiving(self.monitor)
         })?;
 
         Ok(MonitorSocket { inner: self })
@@ -112,23 +112,23 @@ pub struct MonitorSocket {
 impl Clone for MonitorSocket {
     fn clone(&self) -> MonitorSocket {
         MonitorSocket {
-            inner: unsafe { MonitorBuilder::from_raw(&self.inner.context, ::ffi::udev_monitor_ref(self.inner.monitor)) },
+            inner: unsafe { MonitorBuilder::from_raw(&self.inner.context, crate::ffi::udev_monitor_ref(self.inner.monitor)) },
         }
     }
 }
 
-impl AsRaw<::ffi::udev_monitor> for MonitorSocket {
-    fn as_raw(&self) -> *mut ::ffi::udev_monitor {
+impl AsRaw<crate::ffi::udev_monitor> for MonitorSocket {
+    fn as_raw(&self) -> *mut crate::ffi::udev_monitor {
         self.inner.monitor
     }
 
-    fn into_raw(self) -> *mut ::ffi::udev_monitor {
+    fn into_raw(self) -> *mut crate::ffi::udev_monitor {
         self.inner.monitor
     }
 }
 
-impl FromRawWithContext<::ffi::udev_monitor> for MonitorSocket {
-    unsafe fn from_raw(context: &Context, ptr: *mut ::ffi::udev_monitor) -> MonitorSocket {
+impl FromRawWithContext<crate::ffi::udev_monitor> for MonitorSocket {
+    unsafe fn from_raw(context: &Context, ptr: *mut crate::ffi::udev_monitor) -> MonitorSocket {
         MonitorSocket {
             inner: MonitorBuilder::from_raw(context, ptr),
         }
@@ -139,7 +139,7 @@ impl AsRawFd for MonitorSocket {
     /// Returns the file descriptor of the monitor's socket.
     fn as_raw_fd(&self) -> RawFd {
         unsafe {
-            ::ffi::udev_monitor_get_fd(self.inner.monitor)
+            crate::ffi::udev_monitor_get_fd(self.inner.monitor)
         }
     }
 }
@@ -149,13 +149,13 @@ impl Iterator for MonitorSocket {
     
     fn next(&mut self) -> Option<Event> {
         let ptr = unsafe {
-            ::ffi::udev_monitor_receive_device(self.inner.monitor)
+            crate::ffi::udev_monitor_receive_device(self.inner.monitor)
         };
 
         if ptr.is_null() {
             None
         } else {
-            let device = unsafe { ::Device::from_raw(&self.inner.context, ptr) };
+            let device = unsafe { crate::Device::from_raw(&self.inner.context, ptr) };
             Some(Event { device })
         }
     }
@@ -237,7 +237,7 @@ impl Event {
     /// Returns the event's sequence number.
     pub fn sequence_number(&self) -> u64 {
         unsafe {
-            ::ffi::udev_device_get_seqnum(self.device.as_raw()) as u64
+            crate::ffi::udev_device_get_seqnum(self.device.as_raw()) as u64
         }
     }
 
