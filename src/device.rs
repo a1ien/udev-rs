@@ -300,6 +300,7 @@ impl<'a> Iterator for Properties<'a> {
 }
 
 /// A device property.
+#[derive(Debug)]
 pub struct Property<'a> {
     name: &'a OsStr,
     value: &'a OsStr
