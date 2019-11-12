@@ -206,12 +206,12 @@ impl Default for EventType {
 impl fmt::Display for EventType {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         f.write_str(match self {
-            &EventType::Add => "add",
-            &EventType::Change => "change",
-            &EventType::Remove => "remove",
-            &EventType::Bind => "bind",
-            &EventType::Unbind => "unbind",
-            &EventType::Unknown => "unknown",
+            EventType::Add => "add",
+            EventType::Change => "change",
+            EventType::Remove => "remove",
+            EventType::Bind => "bind",
+            EventType::Unbind => "unbind",
+            EventType::Unknown => "unknown",
         })
     }
 }

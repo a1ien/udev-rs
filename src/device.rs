@@ -44,9 +44,9 @@ impl FromRawWithContext<crate::ffi::udev_device> for Device {
 #[repr(u8)]
 pub enum DeviceType {
     /// Block Device
-    BlockDevice = 'b' as u8,
+    BlockDevice = b'b',
     /// Character Device
-    CharacterDevice = 'c' as u8,
+    CharacterDevice = b'c',
 }
 
 impl Device {
