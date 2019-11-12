@@ -72,7 +72,7 @@ impl Enumerator {
 
     /// Adds a filter that matches only devices with the given kernel device name.
     pub fn match_sysname<T: AsRef<OsStr>>(&mut self, sysname: T) -> crate::Result<()> {
-        let sysname = r#try!(crate::util::os_str_to_cstring(sysname));
+        let sysname = crate::util::os_str_to_cstring(sysname)?;
 
         crate::util::errno_to_result(unsafe {
             crate::ffi::udev_enumerate_add_match_sysname(self.enumerator, sysname.as_ptr())
